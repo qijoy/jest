@@ -14,21 +14,31 @@
 ```js
 /**
  * 工具库
+ * 提供基础的四则运算函数：加、减、乘、除
+ * 所有函数通过 exports 暴露出去，供其他模块使用
  */
 
-exports.sum = function(a, b){
-    return a + b + 1;
+// 加法函数
+exports.sum = function(a, b) {
+    // 返回 a 和 b 的和
+    return a + b 
 }
 
-exports.sub = function(a, b){
+// 减法函数
+exports.sub = function(a, b) {
+    // 返回 a 减去 b 的结果
     return a - b;
 }
 
-exports.mul = function(a, b){
+// 乘法函数
+exports.mul = function(a, b) {
+    // 返回 a 和 b 的乘积
     return a * b;
 }
 
-exports.div = function(a, b){
+// 除法函数
+exports.div = function(a, b) {
+    // 返回 a 除以 b 的结果
     return a / b;
 }
 
