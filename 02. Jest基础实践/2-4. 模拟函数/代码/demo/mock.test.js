@@ -1,87 +1,132 @@
-// test("基本演示",()=>{
-//     // 创建一个模拟函数
-//     const mock = jest.fn();
+// ✅ 打印 Jest 提供的所有 mock 工具函数（可选，仅用于了解 jest 对象）
+console.log(jest);
 
-//     mock.mockReturnValue(30) // 设置返回值为 30
-//         .mockReturnValueOnce(10) // 第一次调用模拟函数对应的返回值
-//         .mockReturnValueOnce(20) // 第二次调用模拟函数对应的返回值
+//
+// ✅ mockReturnValue / mockReturnValueOnce 用法演示
+//
+test("mock 函数的返回值设置演示", () => {
+  // 创建一个空的 mock 函数
+  const mock = jest.fn();
 
-//     expect(mock()).toBe(10);
-//     expect(mock()).toBe(20);
-//     expect(mock()).toBe(30);
+  // 设置返回值：默认是 30，但前两次调用分别返回 10 和 20
+  mock
+    .mockReturnValue(30) // 第三次及以后返回 30
+    .mockReturnValueOnce(10) // 第一次调用返回 10
+    .mockReturnValueOnce(20); // 第二次调用返回 20
 
-//     // 设置这个模拟函数的返回值为 42
-//     mock.mockReturnValue(42);
-//     expect(mock()).toBe(42);
-// });
+  // 第一次调用返回 10（来自 mockReturnValueOnce）
+  expect(mock()).toBe(10);
 
-// test("内置实现",()=>{
-//     const mock = jest.fn(x => 100 + x);
-//     expect(mock(1)).toBe(101);
-// })
+  // 第二次调用返回 20
+  expect(mock()).toBe(20);
 
-// const arr = [1, 2, 3];
+  // 第三、四次调用返回默认值 30
+  expect(mock()).toBe(30);
+  expect(mock()).toBe(30);
 
-// function forEach(arr, callback) {
-//   for (let index = 0; index < arr.length; index++) {
-//     callback(arr[index]);
-//   }
-// }
+  // 更改默认返回值为 42
+  mock.mockReturnValue(42);
+  expect(mock()).toBe(42);
+});
 
-// test("测试forEach是否正确", () => {
-//   // 由于 forEach 中依赖了 callback，因此我们可以创建一个模拟函数来模拟这个 callback
-//   const mockCallback = jest.fn((x) => 100 + x);
+//
+// ✅ 使用 mock 函数模拟一个有内置实现的函数
+//
+test("mock 函数自定义实现", () => {
+  // mock 函数接收一个参数 x，返回 100 + x
+  const mock = jest.fn(x => 100 + x);
 
-//   forEach(arr, mockCallback);
+  // 验证 mock 函数是否正确计算
+  expect(mock(1)).toBe(101);
+  expect(mock(5)).toBe(105);
+});
 
-//   // 接下来就进入到测试环节，我们可以利用模拟函数上面的诸多方法来进行一个验证
-//   //   [
-//   //     [ 1 ],
-//   //     [ 2 ],
-//   //     [ 3 ]
-//   //   ];
-//   expect(mockCallback.mock.calls).toHaveLength(3);
-//   expect(mockCallback.mock.calls.length).toBe(3);
+//
+// ✅ 测试函数 forEach 是否按预期调用回调函数
+//
 
-//   // 测试每一次调用 callback 的时候传入的参数是否符合预期
-//   expect(mockCallback.mock.calls[0][0]).toBe(1);
-//   expect(mockCallback.mock.calls[1][0]).toBe(2);
-//   expect(mockCallback.mock.calls[2][0]).toBe(3);
+// 定义一个 forEach 函数，它接收数组和回调函数
+function forEach(arr, callback) {
+  for (let i = 0; i < arr.length; i++) {
+    callback(arr[i]);
+  }
+}
 
-//   // 针对每一次 callback 被调用后的返回值进行测试
-//   expect(mockCallback.mock.results[0].value).toBe(101);
-//   expect(mockCallback.mock.results[1].value).toBe(102);
-//   expect(mockCallback.mock.results[2].value).toBe(103);
+test("forEach 使用 mock 回调函数测试", () => {
+  const arr = [1, 2, 3];
 
-//   // 模拟函数是否被调用过
-//   expect(mockCallback).toHaveBeenCalled();
-//   // 前面在调用的时候是否有参数为 1 以及参数为 2 的调用
-//   expect(mockCallback).toHaveBeenCalledWith(1);
-//   expect(mockCallback).toHaveBeenCalledWith(2);
-//   // 还可以对模拟函数的参数进行一个边界判断，判断最后一次调用是否传入的参数为 3
-//   expect(mockCallback).toHaveBeenLastCalledWith(3);
-// });
+  // 创建一个带有返回值逻辑的 mock 回调函数
+  const mockCallback = jest.fn(x => 100 + x);
 
-// 创建了一个空的模拟函数
-// const fetchDataMock = jest.fn();
-// const fakeData = { id: 1, name: "xiejie" };
-// // 设置该模拟函数的实现
-// fetchDataMock.mockImplementation(() => Promise.resolve(fakeData));
+  // 执行 forEach，mockCallback 会被调用 3 次
+  forEach(arr, mockCallback);
 
-// // 通过模拟函数的一些方法来设置该模拟函数的行为
+  // ✅ 检查调用次数
+  expect(mockCallback).toHaveBeenCalledTimes(3);
 
-// test("模拟网络请求正常", async () => {
-//   const data = await fetchDataMock();
-//   expect(data).toEqual({ id: 1, name: "xiejie" });
-// });
+  // ✅ 检查每次调用时传入的参数
+  expect(mockCallback.mock.calls[0][0]).toBe(1); // 第一次参数是 1
+  expect(mockCallback.mock.calls[1][0]).toBe(2); // 第二次参数是 2
+  expect(mockCallback.mock.calls[2][0]).toBe(3); // 第三次参数是 3
 
-// test("模拟网络请求出错", async () => {
-//   // 模拟网络请求第一次请求失败，之后请求没问题
-//   fetchDataMock.mockImplementationOnce(() =>
-//     Promise.reject(new Error("network error"))
-//   );
+  // ✅ 检查每次返回值
+  expect(mockCallback.mock.results[0].value).toBe(101);
+  expect(mockCallback.mock.results[1].value).toBe(102);
+  expect(mockCallback.mock.results[2].value).toBe(103);
 
-//   await expect(fetchDataMock()).rejects.toThrow("network error");
-//   await expect(fetchDataMock()).resolves.toEqual({ id: 1, name: "xiejie" });
-// });
+  // ✅ 检查是否曾被调用
+  expect(mockCallback).toHaveBeenCalled();
 
+  // ✅ 检查是否用指定参数调用过
+  expect(mockCallback).toHaveBeenCalledWith(1);
+  expect(mockCallback).toHaveBeenCalledWith(2);
+
+  // ✅ 检查最后一次调用的参数是否为 3
+  expect(mockCallback).toHaveBeenLastCalledWith(3);
+});
+
+//
+// ✅ 模拟异步请求函数
+//
+
+// 假设真实项目中是一个异步请求函数
+function fetchData() {
+  return Promise.resolve({ id: 1, name: "xiejie" });
+}
+
+test("模拟异步请求成功", async () => {
+  // 使用 jest.fn() 创建一个异步函数 mock，返回 Promise.resolve(...)
+  const mockFetch = jest.fn(() =>
+    Promise.resolve({ id: 1, name: "xiejie" })
+  );
+
+  // 调用并等待异步执行结果
+  const data = await mockFetch();
+
+  // ✅ 检查返回值
+  expect(data).toEqual({ id: 1, name: "xiejie" });
+
+  // ✅ 检查调用次数
+  expect(mockFetch).toHaveBeenCalledTimes(1);
+});
+
+test("模拟异步请求失败后恢复正常", async () => {
+  // 创建一个异步函数 mock，控制前两次行为
+  const mockFetch = jest
+    .fn()
+    .mockImplementationOnce(() =>
+      Promise.reject(new Error("network error")) // 第一次抛出异常
+    )
+    .mockImplementationOnce(() =>
+      Promise.resolve({ id: 1, name: "xiejie" }) // 第二次返回成功
+    );
+
+  // ✅ 第一次调用应抛出错误
+  await expect(mockFetch()).rejects.toThrow("network error");
+
+  // ✅ 第二次调用应返回正常数据
+  await expect(mockFetch()).resolves.toEqual({ id: 1, name: "xiejie" });
+
+  // ✅ 总共调用了两次
+  expect(mockFetch).toHaveBeenCalledTimes(2);
+});
